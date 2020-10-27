@@ -13,7 +13,7 @@ curl -o- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest
 > wget -qO- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-linux | bash
 ```
 
-```sh
+```
 > ./mi-home-token-extractor --help
 
 Usage: mi-home-token-extractor [options]
@@ -27,7 +27,7 @@ Options:
 
 You can simply run `./mi-home-token-extractor` without options to get a list of your Mi Home devices with corresponding decrypted `token`.
 
-```sh
+```
 > ./mi-home-token-extractor 
 
 Lampe de bureau - Livebox-Z300
