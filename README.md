@@ -25,6 +25,10 @@ Options:
   -h, --help         display help for command
 ```
 
+You can simply run `./mi-home-token-extractor` without options.
+
+`--ssid`option allow you to filter devices based on which SSID they are connected to which can be helpful when you have several homes attached to your Mi Home application.
+
 ## How to get my Xiaomi Home devices tokens ?
 
 1. Download __Xiaomi Home token extractor__
