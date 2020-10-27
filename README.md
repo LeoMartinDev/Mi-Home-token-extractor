@@ -25,7 +25,7 @@ Options:
   -h, --help         display help for command
 ```
 
-You can simply run `./mi-home-token-extractor` without options.
+You can simply run `./mi-home-token-extractor` without options to get a list of your Mi Home devices with corresponding decrypted `token`.
 
 `--ssid`option allow you to filter devices based on which SSID they are connected to which can be helpful when you have several homes attached to your Mi Home application.
 
