@@ -4,6 +4,6 @@ A simple script to extract Xiaomi Home devices tokens from an iOS non-encrypted 
 
 ## Installing
 
-> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash
+> curl -o- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-linux | bash
 
-> wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.36.0/install.sh | bash
+> wget -qO- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-linux | bash
