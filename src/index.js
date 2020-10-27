@@ -82,7 +82,7 @@ function printDevices({ devices }) {
       console.log(
 `${chalk.greenBright(device.name)} \
 - ${chalk.greenBright(device.ssid)}
-${chalk.bgBlueBright('[TOKEN]')} ${chalk.inverse(device.token)}
+${chalk.bgBlueBright('[TOKEN]')} ${chalk.inverse(device.decryptedToken)}
 ${chalk.bgBlueBright('[IP]')} ${device.localIp} \
 - ${chalk.bgBlueBright('[MAC]')} ${device.mac}\n`));
 }
