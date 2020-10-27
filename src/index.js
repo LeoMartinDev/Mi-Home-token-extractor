@@ -13,7 +13,7 @@ program
   .storeOptionsAsProperties(false)
   .name(name)
   .version(version)
-  .option('-s, --ssid <ssid>', 'filter devices by SSID')
+  .option('-s, --ssid <SSID>', 'filter devices by SSID')
   .option('-n, --name <name>', 'filter devices by name')
   .parse(process.argv);
 
