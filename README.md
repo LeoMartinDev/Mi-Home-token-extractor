@@ -39,7 +39,7 @@ Lampe de chevet de Léo - Livebox-Z300
 [IP] 192.168.1.14 - [MAC] 5C:5C:5C:5C:5C:5C
 ```
 
-`--ssid`option allow you to filter devices based on which SSID they are connected to which can be helpful when you have several homes attached to your Mi Home application.
+`--ssid`option allows you to filter devices based on which SSID they are connected to which can be helpful when you have several homes attached to your Mi Home application.
 
 ## How to get my Xiaomi Home devices tokens ?
 
