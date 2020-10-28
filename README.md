@@ -33,11 +33,11 @@ You can simply run `./mi-home-token-extractor` without options to get a list of 
 > ./mi-home-token-extractor 
 
 Lampe de bureau - Livebox-Z300
-[TOKEN] dd23817c662dcccbb4ab8fcf1e658b1c37925ad79a39cdcb205a966f2ff9a3cd0143db63ee66b0cdff9f69917680151e
+[TOKEN] dd23817c662dcccbb4ab8fcf1e658b1
 [IP] 192.168.1.12 - [MAC] 5C:5C:5C:5C:5C:5C
 
 Lampe de chevet de Léo - Livebox-Z300
-[TOKEN] b76415c00b2488f248fd248c2e379f79850e478ed0ea0ae0a0559a420e4e95ed0143db63ee66b0cdff9f69917680151e
+[TOKEN] b76415c00b2488f248fd248c2e379f7
 [IP] 192.168.1.14 - [MAC] 5C:5C:5C:5C:5C:5C
 ```
 
