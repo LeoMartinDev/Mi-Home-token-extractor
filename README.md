@@ -13,6 +13,8 @@ curl -o- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest
 wget -qO- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-linux | bash
 ```
 
+Alternatively, clone the repo, switch to Node v12, run `npm i` and launch the script `npm start` !
+
 ```
 > ./mi-home-token-extractor --help
 
