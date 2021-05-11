@@ -21,7 +21,7 @@
     "chalk": "^4.1.0",
     "commander": "^6.2.0",
     "ibackuptool": "^4.0.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "sqlite3": "^4.2.0"
   },
   "devDependencies": {
