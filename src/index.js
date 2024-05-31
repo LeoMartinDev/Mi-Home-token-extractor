@@ -1,44 +1,44 @@
-const { version, name } = require('../package.json');
+import { parseArgs } from "node:util";
+import os from 'node:os';
+import assert from 'node:assert';
+import { Database } from 'bun:sqlite';
+import crypto from 'node:crypto';
 
-const ibt = require('ibackuptool');
-const _ = require('lodash');
-const sqlite3 = require('sqlite3');
-const path = require('path');
-const crypto = require('crypto');
-const fs = require('fs').promises;
-const chalk = require('chalk');
-const { program } = require('commander');
+import { createBackupsService } from "./backups.service";
 
-program
-  .storeOptionsAsProperties(false)
-  .name(name)
-  .version(version)
-  .option('-s, --ssid <SSID>', 'filter devices by SSID')
-  .option('-n, --name <name>', 'filter devices by name')
-  .parse(process.argv);
+const { values: argsValues } = parseArgs({
+  args: Bun.argv,
+  options: {
+    backupDeviceName: {
+      type: 'string',
+      short: 'b',
+    },
+  },
+  strict: true,
+  allowPositionals: true,
+})
 
-const EXTRACT_PATH = path.resolve(process.cwd(), 'extracted');
-const MI_HOME_PATH = 'App/com.xiaomi.miHome';
+const platform = os.platform();
+assert(platform === 'darwin' || platform === 'win32', 'Platform not supported');
 
-function findAllMiHomeDevices({ db }) {
-  return new Promise((resolve, reject) => {
-    db.all('SELECT ZNAME, ZTOKEN, ZMAC, ZLOCALIP, ZSSID FROM ZDEVICE;', (error, rows) => {
-      if (error) return reject(error);
+const backupsService = createBackupsService({ platform });
 
-      const formattedRows = _.map(rows, (row) => ({
-        name: row.ZNAME,
-        token: row.ZTOKEN,
-        mac: row.ZMAC,
-        localIp: row.ZLOCALIP,
-        ssid: row.ZSSID,
-      }));
+const backups = await backupsService.listBackups();
+assert(backups.length > 0, 'No backups found');
+console.info(`Found ${backups.length} backups`);
 
-      return resolve(formattedRows);
-    });
-  })
-}
+const backup = backups
+  .sort((a, b) => b.backupDate.getTime() - a.backupDate.getTime())
+  .find((backup) => argsValues.backupDeviceName
+    ? new RegExp(argsValues.backupDeviceName.trim(), 'i').test(backup.deviceName)
+    : true,
+  );
+assert(backup, 'Backup not found');
+console.info(`Using backup ${backup.deviceName} (${backup.backupDate.toISOString()})`);
 
-function decryptToken({ token }) {
+const mihomeSqlite = await backupsService.findFiles(backup.path, 'mihome.sqlite');
+
+const decryptToken = ({ token }) => {
   const KEY = Buffer.from('00000000000000000000000000000000', 'hex');
 
   const decipher = crypto.createDecipheriv('aes-128-ecb', KEY, '');
@@ -48,102 +48,40 @@ function decryptToken({ token }) {
   ]);
 
   return decrypted.toString();
-}
+};
 
-function filterDevices({ devices, deviceSsidFilter, deviceNameFilter }) {
-  const ssidFilter = deviceSsidFilter
-    ? _.toLower(deviceSsidFilter)
-    : undefined;
-  const nameFilter = deviceNameFilter
-    ? _.toLower(deviceNameFilter)
-    : undefined;
-
-  if (!ssidFilter && !nameFilter) {
-    return devices;
-  }
-
-  return _.filter(devices, (device) => {
-    const isMatchingSsid = _.toLower(device.ssid).includes(ssidFilter);
-    const isMatchingName = _.toLower(device.name).includes(nameFilter);
-
-    return isMatchingSsid || isMatchingName;
-  });
-}
-
-function printDevices({ devices }) {
-  if (devices.length === 0) {
-    console.log('No devices found!');
-    return;
-  }
-
-  const devicesBySsid = _.sortBy(devices, 'ssid');
-
-  _.forEach(devicesBySsid, (device) =>
-      console.log(
-`${chalk.greenBright(device.name)} \
-- ${chalk.greenBright(device.ssid)}
-${chalk.bgBlueBright('[TOKEN]')} ${chalk.inverse(device.decryptedToken)}
-${chalk.bgBlueBright('[IP]')} ${device.localIp} \
-- ${chalk.bgBlueBright('[MAC]')} ${device.mac}\n`));
-}
-
-process.on('unhandledRejection', (error) => {
-  console.error(error.message);
-  process.exit(-1);
-});
-
-(async () => {
-  let exitCode = 0;
-
+const getDevices = async (databasePath) => {
   try {
-    const { ssid: deviceSsidFilter, name: deviceNameFilter } = program.opts();
-
-    const backups = await ibt.run('backups.list');
-  
-    const newestBackup = _.first(backups);
-    
-    if (!newestBackup) {
-      throw new Error('Cannot find iPhone backups!');
-    }
-
-    const backupFiles = await ibt.run('backup.files', {
-      backup: newestBackup.udid,
-      filter: 'mihome.sqlite',
-      extract: EXTRACT_PATH,
-    });
-
-    const miHomeSqliteFiles = _.filter(backupFiles, (file) => _.get(file, 'path', '').includes('mihome.sqlite'));
-  
-    if (miHomeSqliteFiles.length === 0) {
-      throw new Error('Cannot find Mi Home sqlite files!');
-    }
-  
-    const newestMiHomeSqliteFile = _.maxBy(miHomeSqliteFiles, 'mtime');
-  
-    const sqliteFilePath = path.resolve(EXTRACT_PATH, MI_HOME_PATH, newestMiHomeSqliteFile.path);
-  
-    const db = new sqlite3.Database(sqliteFilePath, sqlite3.OPEN_READONLY);
-  
-    const devices = await findAllMiHomeDevices({ db });
-  
+    const db = new Database(databasePath);
+    const rows = db.query('SELECT ZNAME, ZTOKEN, ZMAC, ZLOCALIP, ZSSID FROM ZDEVICE').all();
     db.close();
 
-    const filteredDevices = filterDevices({ devices, deviceSsidFilter, deviceNameFilter });
-  
-    const devicesWithDecryptedToken = _.map(filteredDevices, (device) => ({
-      ...device,
-      decryptedToken: decryptToken({ token: device.token }),
+    if (!rows || rows.length === 0) {
+      return [];
+    }
+
+    return rows.map((row) => ({
+      name: row.ZNAME,
+      token: decryptToken({ token: row.ZTOKEN }),
+      mac: row.ZMAC,
+      localIp: row.ZLOCALIP,
+      ssid: row.ZSSID,
     }));
-  
-    printDevices({ devices: devicesWithDecryptedToken });
   } catch (error) {
-    console.error(error.message);
-    exitCode = -1;
-  } finally {
-    await fs.rmdir(EXTRACT_PATH, { recursive: true }).catch(() => {
-      console.error('Failed to remove "extracted" directory!');
-      exitCode = -1;
-    });
-    process.exit(exitCode);
+    return []
   }
-})();
+};
+
+const devices = (await Promise.all(mihomeSqlite.map(async (file) => getDevices(file.path))))
+  .flat()
+  .filter((device) => device !== undefined);
+assert(devices.length > 0, 'No devices found');
+
+console.info(`Found ${devices.length} devices`);
+devices.forEach((device) =>
+  console.info(`
+DEVICE    ${device.name}
+TOKEN     ${device.token}
+MAC       ${device.mac}
+LOCAL IP  ${device.localIp}
+SSID      ${device.ssid}`));

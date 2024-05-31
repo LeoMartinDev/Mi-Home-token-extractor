@@ -11,16 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: oven-sh/setup-bun@v1
       with:
-        node-version: '12.x'
-        registry-url: 'https://npm.pkg.github.com'
+        bun-version: 1.1.10
     - name: Install dependencies
-      run: npm ci
-    - name: Build binaries
-      run: npm run build
+      run: bun install
+    - name: Build Linux
+      run: bun build --minify ./src/index.js --compile --target=bun-linux-x64 --outfile ./build/token-extractor-linux
+    - name: Build Windows
+      run: bun build --minify ./src/index.js --compile --target=bun-windows-x64 --outfile ./build/token-extractor-windows.exe
+    - name: Build MacOS ARM
+      run: bun build --minify ./src/index.js --compile --target=bun-darwin-arm64 --outfile ./build/token-extractor-macos-arm64
+    - name: Build MacOS x64
+      run: bun build --minify ./src/index.js --compile --target=bun-darwin-x64 --outfile ./build/token-extractor-macos-x64
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: ./build/*

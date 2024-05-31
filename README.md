@@ -2,51 +2,53 @@
 
 A simple script to extract Xiaomi Home devices tokens from an unencrypted iOS backup.
 
-> Only tested on MacOS Catalina
+> Only tested on MacOS.
 
 ## Installation
+
+### MacOS
+
+**macOS x64**
+```sh
+curl -o- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-macos-x64 | bash
+```
+
+**macOS arm64**
+```sh
+curl -o- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-macos-arm64 | bash
+```
+
+### Linux
 
 ```sh
 curl -o- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-linux | bash
 ```
+
+### Windows
+
 ```sh
-wget -qO- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-linux | bash
+curl -o- https://github.com/LeoMartinDev/Mi-Home-token-extractor/releases/latest/download/mi-home-token-extractor-windows | bash
 ```
 
-Alternatively, clone the repo, switch to Node v12, run `npm i` and launch the script `npm start` !
+Alternatively, clone the repo, run `bun install` and launch the script `bun start` !
 
+## Usage
+
+1. Connect your Xiaomi Home devices in the Xiaomi app.
+2. Create an unencrypted iOS backup: https://support.apple.com/en-us/118426#computer
+3. Run `token-extractor`.
+4. Profit!
+
+```sh
+> ./token-extractor-macos-arm64
+
+Found 1 backups
+Using backup iPhone de Léo (2024-05-29T14:11:51.000Z)
+Found 1 devices
+
+DEVICE    My device
+TOKEN     unencrypted_token
+MAC       CC:CC:CC:CC:CC:CC
+LOCAL IP  0.0.0.0
+SSID      MY_SSID
 ```
-> ./mi-home-token-extractor --help
-
-Usage: mi-home-token-extractor [options]
-
-Options:
-  -V, --version      output the version number
-  -s, --ssid <ssid>  filter devices by SSID
-  -n, --name <name>  filter devices by name
-  -h, --help         display help for command
-```
-
-You can simply run `./mi-home-token-extractor` without options to get a list of your Mi Home devices with corresponding decrypted `token`.
-
-```
-> ./mi-home-token-extractor 
-
-Lampe de bureau - Livebox-Z300
-[TOKEN] a40264428ecc981f8eecb381116c50b8
-[IP] 192.168.1.12 - [MAC] 5C:5C:5C:5C:5C:5C
-
-Lampe de chevet de Léo - Livebox-Z300
-[TOKEN] a40264428ecc981f8eecb381116c50b8
-[IP] 192.168.1.14 - [MAC] 5C:5C:5C:5C:5C:5C
-```
-
-`--ssid`option allows you to filter devices based on which SSID they are connected to which can be helpful when you have several homes attached to your Mi Home application.
-
-## How to get my Xiaomi Home devices tokens ?
-
-1. Download __Xiaomi Home token extractor__
-2. Create an unencrypted iOS backup https://support.apple.com/en-us/HT203977#computer
-3. Run `./mi-home-token-extractor`
-
-> There is other methods to find your devices tokens, check https://github.com/Maxmudjon/com.xiaomi-miio/blob/master/docs/obtain_token.md
